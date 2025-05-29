@@ -14,7 +14,7 @@ c={
 def show(elements, selectedcord, skip=None):
     
     os.system("cls")
-    print("\n."*5)
+    print("\n"*5)
     
     bordercolor="azul"
     selectedcolor="amarillo"
