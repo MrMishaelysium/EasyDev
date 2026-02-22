@@ -7,17 +7,17 @@ from guardar import guardar
 def returnfalse(): return False
 class problem_view_menu(menus.menu):
     def __init__(self, id, ix=-1, p=True):
+        db.download_problem(id)
         self.keys = {kb.Key.up: self.up,kb.Key.down: self.down ,kb.Key.enter:self.enter}
         self.functs = [self.marcar_hecho,self.marcar_favorito, returnfalse]
-        
         self.index=ix
         self.id=id
-        self.problem=v.archivos[id]
+        self.problem=v.archivos[id]   
         if p:v.archivos[id][3]+=1
+        db.change_problem(self.problem[7], self.problem[3:6])
         self.table = self.prepare()
         if self.index==-1:self.index=self.skip[2]
         self.show()
-        
         with kb.Listener(self.listen) as escuchador:
             escuchador.join()
         self.rt=self.run(*self.args)
@@ -31,9 +31,10 @@ class problem_view_menu(menus.menu):
         else:
             v.cuentas[v.usuario_actual][5].remove(self.problem[-1])
             v.archivos[self.problem[-1]][5].remove(v.usuario_actual)
-
+        db.change_problem(self.problem[7], self.problem[3:6])
         db.change_usuario(v.usuario_actual,v.cuentas[v.usuario_actual])
-        return guardar()
+        return guardar()    
+        
 
     def marcar_hecho(self):
         if self.problem[-1] not in v.cuentas[v.usuario_actual][4]:
@@ -42,11 +43,9 @@ class problem_view_menu(menus.menu):
         else:
             v.cuentas[v.usuario_actual][4].remove(self.problem[-1])
             v.archivos[self.problem[-1]][4].remove(v.usuario_actual)
-            
+        db.change_problem(self.problem[7], self.problem[3:6])
         db.change_usuario(v.usuario_actual,v.cuentas[v.usuario_actual])
         return guardar()
-    
-
 
     def enter(self):
         self.args =[]
@@ -59,7 +58,6 @@ class problem_view_menu(menus.menu):
     def down(self):
         self.index+= 1 if self.index<len(self.table)-1 else 0
         self.show()
-        #print(self.index,len(self.table))
         return True
     def repeat(self):
         problem_view_menu(id=self.id, ix = self.index)
@@ -77,7 +75,6 @@ class problem_view_menu(menus.menu):
         lines=[""]
         ix = 0
         c=0
-        
         for i in words:
             c+=len(i)+1
             if c>=linelength:
@@ -100,3 +97,4 @@ class problem_view_menu(menus.menu):
         return tabla
     def show(self):
         return table.show(elements=self.table,selectedcord=self.index,skip=self.skip)
+
